@@ -920,14 +920,14 @@
     function buildResultsTableData() {
         const maxTrials = savedSessions.reduce((max, s) => Math.max(max, s.ebTrials.length), 0);
         const columns = [
-            { main: 'rpm', sub: 'rev/min' },
+            { main: 'Speed', sub: 'rpm' },
             { main: 'ṁfuel', sub: 'kg/s' },
             { main: 'λ', sub: '−' },
             { main: 'A₀', sub: 'm³N/kgfuel' },
             { main: 'G′', sub: 'm³N/kgfuel' },
             { main: 'V̇G,STD', sub: 'm³/s' },
             { main: 'V̇G,actual', sub: 'm³/s' },
-            { main: 'ρexhaust', sub: 'kg/m³' },
+            { main: 'Density', sub: 'kg/m³' },
             { main: 'ṁG,G′', sub: 'kg/s' }
         ];
         for (let i = 0; i < maxTrials; i += 1) {
@@ -956,8 +956,8 @@
         });
 
         const exportHeaders = [
-            'rpm (rev/min)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
-            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'rho-exhaust (kg/m3)', 'mG-Gprime (kg/s)'
+            'Speed (rpm)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
+            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'Density (kg/m3)', 'mG-Gprime (kg/s)'
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
@@ -969,7 +969,7 @@
     function buildInputsTableData() {
         const maxTrials = savedSessions.reduce((max, s) => Math.max(max, s.ebTrials.length), 0);
         const columns = [
-            { main: 'rpm', sub: 'rev/min' },
+            { main: 'Speed', sub: 'rpm' },
             { main: 'H/C ratio', sub: 'Hcv' },
             { main: 'O/C ratio', sub: 'Ocv' },
             { main: 'C', sub: '−' },
@@ -1017,12 +1017,16 @@
         });
 
         const exportHeaders = [
-            'rpm (rev/min)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
-            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'rho-exhaust (kg/m3)', 'mG-Gprime (kg/s)'
+            'Speed (rpm)', 'H/C ratio (Hcv)', 'O/C ratio (Ocv)', 'C (-)', 'H (-)', 'O (-)', 'S (-)', 'N (-)',
+            'HC ref. no. (n)', 'Vfuel (ml/min)', 'rhofuel (kg/L)', 'CO2 (%vol)', 'CO (%vol)', 'O2 (%vol)',
+            'HC (ppm)', 'NOx (ppm)', 'P (kPa)', 'M (kg/mol)', 'Texhaust (C)'
         ];
         for (let i = 0; i < maxTrials; i += 1) {
-            exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
-            exportHeaders.push(`mG-EB ${i + 1} (kg/s)`);
+            exportHeaders.push(`mwater ${i + 1} (L/min)`);
+            exportHeaders.push(`TGI ${i + 1} (C)`);
+            exportHeaders.push(`TGO ${i + 1} (C)`);
+            exportHeaders.push(`TWI ${i + 1} (C)`);
+            exportHeaders.push(`TWO ${i + 1} (C)`);
         }
         return { columns, rows, exportHeaders };
     }
