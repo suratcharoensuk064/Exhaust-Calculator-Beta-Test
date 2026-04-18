@@ -435,7 +435,8 @@
             <div class="mini-buttons" style="margin-bottom:12px;">
                 <button id="saveSessionBtn">Save Results</button>
                 <button id="exportPDFBtn">Export PDF</button>
-                <button id="exportExcelBtn" class="secondary-btn">Export Excel</button>
+                <button id="exportExcelBtn" class="secondary-btn">Export Results Excel</button>
+                <button id="exportInputsExcelBtn" class="secondary-btn">Export Inputs Excel</button>
                 <button id="clearSavedResultsBtn" class="danger-btn">Clear Saved Results</button>
             </div>
             <div class="table-wrap">
@@ -954,7 +955,14 @@
             return row;
         });
 
-        const exportHeaders = columns.map(c => c.sub ? `${c.main} (${c.sub})` : c.main);
+        const exportHeaders = [
+            'rpm (rev/min)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
+            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'rho-exhaust (kg/m3)', 'mG-Gprime (kg/s)'
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
+            exportHeaders.push(`mG-EB ${i + 1} (kg/s)`);
+        }
         return { columns, rows, exportHeaders };
     }
 
@@ -1008,7 +1016,14 @@
             return row;
         });
 
-        const exportHeaders = columns.map(c => c.sub ? `${c.main} (${c.sub})` : c.main);
+        const exportHeaders = [
+            'rpm (rev/min)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
+            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'rho-exhaust (kg/m3)', 'mG-Gprime (kg/s)'
+        ];
+        for (let i = 0; i < maxTrials; i += 1) {
+            exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
+            exportHeaders.push(`mG-EB ${i + 1} (kg/s)`);
+        }
         return { columns, rows, exportHeaders };
     }
 
@@ -1043,7 +1058,7 @@
 
         doc.setFontSize(16);
         doc.setTextColor(245, 158, 11);
-        doc.text('Exhaust Gas Mass Flow Rate — Results & Input Records', 14, 16);
+        doc.text('Exhaust Gas Mass Flow Rate - Results & Input Records', 14, 16);
         doc.setFontSize(10);
         doc.setTextColor(150, 150, 150);
         doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 23);
@@ -1107,6 +1122,20 @@
         XLSX.utils.book_append_sheet(wb, wsResults, 'Results');
         XLSX.utils.book_append_sheet(wb, wsInputs, 'Input Records');
         XLSX.writeFile(wb, 'exhaust_results_and_inputs.xlsx');
+    });
+
+    document.getElementById('exportInputsExcelBtn').addEventListener('click', () => {
+        if (savedSessions.length === 0) {
+            alert('ยังไม่มีข้อมูลที่บันทึก');
+            return;
+        }
+
+        const inputsData = buildInputsTableData();
+        const wb = XLSX.utils.book_new();
+        const wsInputs = XLSX.utils.aoa_to_sheet([inputsData.exportHeaders, ...inputsData.rows]);
+        wsInputs['!cols'] = inputsData.exportHeaders.map(() => ({ wch: 16 }));
+        XLSX.utils.book_append_sheet(wb, wsInputs, 'Input Records');
+        XLSX.writeFile(wb, 'input_records.xlsx');
     });
 
     // ============================================================
