@@ -1200,10 +1200,29 @@
         XLSX.writeFile(wb, 'input_records.xlsx');
     });
 
+
+    // ============================================================
+    // PREVENT ACCIDENTAL NUMBER INPUT CHANGES (WHEEL / ARROW KEYS)
+    // ============================================================
+    function attachNumberInputGuards() {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                }
+            });
+        });
+    }
+
     // ============================================================
     // INIT
     // ============================================================
     window.addEventListener('load', () => {
+        attachNumberInputGuards();
         initChart();
         renderEbTrials();
         renderSavedTables();
