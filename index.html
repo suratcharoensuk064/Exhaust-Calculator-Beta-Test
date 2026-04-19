@@ -605,6 +605,43 @@
     let currentEbTrials = [];
     let savedSessions = [];
     let savedSessionCounter = 0;
+    const ebFlowColors = ['#22d3ee', '#10b981', '#ef4444', '#a78bfa', '#f97316', '#eab308', '#ec4899', '#14b8a6'];
+
+    function getEbDatasetLabel(flowValue) {
+        return `ṁG,EB @ ${Number(flowValue).toFixed(2)} L/min`;
+    }
+
+    function getEbDatasetColor(flowValue) {
+        const roundedFlow = Number(flowValue).toFixed(2);
+        let hash = 0;
+        for (let i = 0; i < roundedFlow.length; i += 1) {
+            hash = ((hash << 5) - hash) + roundedFlow.charCodeAt(i);
+            hash |= 0;
+        }
+        return ebFlowColors[Math.abs(hash) % ebFlowColors.length];
+    }
+
+    function getOrCreateEbDataset(flowValue) {
+        const label = getEbDatasetLabel(flowValue);
+        let dataset = chart.data.datasets.find(ds => ds.label === label);
+        if (!dataset) {
+            const color = getEbDatasetColor(flowValue);
+            dataset = {
+                label,
+                data: [],
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                showLine: false,
+                borderWidth: 0,
+                borderColor: color,
+                backgroundColor: color,
+                pointBackgroundColor: color,
+                pointBorderColor: color
+            };
+            chart.data.datasets.push(dataset);
+        }
+        return dataset;
+    }
 
     // ============================================================
     // HELPERS
@@ -803,18 +840,20 @@
     function initChart() {
         const ctx = document.getElementById('comparisonChart').getContext('2d');
         chart = new Chart(ctx, {
-            type: 'line',
+            type: 'scatter',
             data: {
                 datasets: [
                     {
                         label: "ṁG,G′",
-                        borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderWidth: 2,
-                        pointRadius: 5, pointBackgroundColor: '#f59e0b', pointBorderColor: '#f59e0b', data: [], tension: 0.3
-                    },
-                    {
-                        label: 'ṁG,EB',
-                        borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.05)', borderWidth: 2,
-                        pointRadius: 5, pointBackgroundColor: '#22d3ee', pointBorderColor: '#22d3ee', data: [], tension: 0.3
+                        data: [],
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        showLine: false,
+                        borderWidth: 0,
+                        borderColor: '#f59e0b',
+                        backgroundColor: '#f59e0b',
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#f59e0b'
                     }
                 ]
             },
@@ -822,7 +861,14 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { labels: { color: '#e5e7eb', font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 }, usePointStyle: true, padding: 15 } }
+                    legend: {
+                        labels: {
+                            color: '#e5e7eb',
+                            font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 },
+                            usePointStyle: true,
+                            padding: 15
+                        }
+                    }
                 },
                 scales: {
                     x: {
@@ -843,16 +889,28 @@
 
     document.getElementById('addPointBtn').addEventListener('click', () => {
         calculate();
-        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || currentCalc.m_G_EB === null) return;
+        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || isNaN(currentCalc.m_G_Gprime) || !isFinite(currentCalc.m_G_Gprime)) return;
+
         chart.data.datasets[0].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_Gprime });
-        chart.data.datasets[1].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_EB });
+
+        const ebTrialsForChart = currentEbTrials.length > 0
+            ? currentEbTrials.filter(trial => trial.m_G_EB !== null && !isNaN(trial.m_G_EB) && isFinite(trial.m_G_EB))
+            : [{ flowValue: currentCalc.m_W_lpm, m_G_EB: currentCalc.m_G_EB }];
+
+        ebTrialsForChart.forEach(trial => {
+            if (trial.flowValue === null || trial.flowValue === undefined || isNaN(trial.flowValue)) return;
+            if (trial.m_G_EB === null || isNaN(trial.m_G_EB) || !isFinite(trial.m_G_EB)) return;
+            const dataset = getOrCreateEbDataset(trial.flowValue);
+            dataset.data.push({ x: currentCalc.rpm, y: trial.m_G_EB });
+        });
+
         chart.update();
     });
 
     document.getElementById('clearChartBtn').addEventListener('click', () => {
         if (chart) {
+            chart.data.datasets = [chart.data.datasets[0]];
             chart.data.datasets[0].data = [];
-            chart.data.datasets[1].data = [];
             chart.update();
         }
     });
