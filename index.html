@@ -345,12 +345,20 @@
 
         <div class="collapsible-group">
             <div class="group-header">Exhaust Gas Analyzer</div>
+            
             <div class="group-content">
+                <div class="input-group"><label class="input-label">HC [ppm]</label><input type="number" id="HC_ppm" step="1" placeholder="e.g. 300"><div class="conversion-preview" id="prev-HC"></div></div>
+                <div class="input-group"><label class="input-label">CO [% Vol]</label><input type="number" id="CO" step="0.01" placeholder="e.g. 0.5"><div class="conversion-preview" id="prev-CO"></div></div>
+                <div class="input-group"><label class="input-label">NO<sub>x</sub> [ppm] (ref only)</label><input type="number" id="NOx_ppm" step="0.1" placeholder="e.g. 50"><div class="conversion-preview" id="prev-NOx"></div></div>
+                <div class="input-group"><label class="input-label">O₂ [% Vol]</label><input type="number" id="O2" step="0.01" placeholder="e.g. 1.2"><div class="conversion-preview" id="prev-O2"></div></div>
                 <div class="input-group"><label class="input-label">CO₂ [% Vol]</label><input type="number" id="CO2" step="0.01" placeholder="e.g. 12.5"><div class="conversion-preview" id="prev-CO2"></div></div>
+            </div>
+
+        </div>
                 <div class="input-group"><label class="input-label">CO [% Vol]</label><input type="number" id="CO" step="0.01" placeholder="e.g. 0.5"><div class="conversion-preview" id="prev-CO"></div></div>
                 <div class="input-group"><label class="input-label">O₂ [% Vol]</label><input type="number" id="O2" step="0.01" placeholder="e.g. 1.2"><div class="conversion-preview" id="prev-O2"></div></div>
                 <div class="input-group"><label class="input-label">HC [ppm]</label><input type="number" id="HC_ppm" step="1" placeholder="e.g. 300"><div class="conversion-preview" id="prev-HC"></div></div>
-                <div class="input-group"><label class="input-label">NO<sub>x</sub> [ppm] </label><input type="number" id="NOx_ppm" step="0.1" placeholder="e.g. 50"><div class="conversion-preview" id="prev-NOx"></div></div>
+                <div class="input-group"><label class="input-label">NO<sub>x</sub> [ppm] (ref only)</label><input type="number" id="NOx_ppm" step="0.1" placeholder="e.g. 50"><div class="conversion-preview" id="prev-NOx"></div></div>
             </div>
         </div>
 
@@ -365,8 +373,17 @@
 
         <div class="collapsible-group">
             <div class="group-header">Energy Balance Inputs</div>
+            
             <div class="group-content">
                 <div class="input-group"><label class="input-label">Water Flow Rate [L/min]</label><input type="number" id="m_W" step="0.1" placeholder="e.g. 2.0"><div class="conversion-preview" id="prev-m_W"></div></div>
+                <div class="input-group"><label class="input-label">Exhaust C<sub>p</sub> (C<sub>PG</sub>) [kJ/(kg·K)]</label><input type="number" id="C_PG" step="0.01" placeholder="e.g. 1.09"><div class="conversion-preview" id="prev-C_PG"></div></div>
+                <div class="input-group"><label class="input-label">Water Inlet Temp (T<sub>WI</sub>) [°C]</label><input type="number" id="T_WI_C" step="1" placeholder="e.g. 25"><div class="conversion-preview" id="prev-T_WI"></div></div>
+                <div class="input-group"><label class="input-label">Water Outlet Temp (T<sub>WO</sub>) [°C]</label><input type="number" id="T_WO_C" step="1" placeholder="e.g. 45"><div class="conversion-preview" id="prev-T_WO"></div></div>
+                <div class="input-group"><label class="input-label">Gas Inlet Temp (T<sub>GI</sub>) [°C]</label><input type="number" id="T_GI_C" step="1" placeholder="e.g. 400"><div class="conversion-preview" id="prev-T_GI"></div></div>
+                <div class="input-group"><label class="input-label">Gas Outlet Temp (T<sub>GO</sub>) [°C]</label><input type="number" id="T_GO_C" step="1" placeholder="e.g. 350"><div class="conversion-preview" id="prev-T_GO"></div></div>
+            </div>
+
+        </div>
                 <div class="input-group"><label class="input-label">Exhaust C<sub>p</sub> (C<sub>PG</sub>) [kJ/(kg·K)]</label><input type="number" id="C_PG" step="0.01" placeholder="e.g. 1.09"><div class="conversion-preview" id="prev-C_PG"></div></div>
                 <div class="input-group"><label class="input-label">Gas Inlet Temp (T<sub>GI</sub>) [°C]</label><input type="number" id="T_GI_C" step="1" placeholder="e.g. 400"><div class="conversion-preview" id="prev-T_GI"></div></div>
                 <div class="input-group"><label class="input-label">Gas Outlet Temp (T<sub>GO</sub>) [°C]</label><input type="number" id="T_GO_C" step="1" placeholder="e.g. 350"><div class="conversion-preview" id="prev-T_GO"></div></div>
@@ -605,43 +622,6 @@
     let currentEbTrials = [];
     let savedSessions = [];
     let savedSessionCounter = 0;
-    const ebFlowColors = ['#22d3ee', '#10b981', '#ef4444', '#a78bfa', '#f97316', '#eab308', '#ec4899', '#14b8a6'];
-
-    function getEbDatasetLabel(flowValue) {
-        return `ṁG,EB @ ${Number(flowValue).toFixed(2)} L/min`;
-    }
-
-    function getEbDatasetColor(flowValue) {
-        const roundedFlow = Number(flowValue).toFixed(2);
-        let hash = 0;
-        for (let i = 0; i < roundedFlow.length; i += 1) {
-            hash = ((hash << 5) - hash) + roundedFlow.charCodeAt(i);
-            hash |= 0;
-        }
-        return ebFlowColors[Math.abs(hash) % ebFlowColors.length];
-    }
-
-    function getOrCreateEbDataset(flowValue) {
-        const label = getEbDatasetLabel(flowValue);
-        let dataset = chart.data.datasets.find(ds => ds.label === label);
-        if (!dataset) {
-            const color = getEbDatasetColor(flowValue);
-            dataset = {
-                label,
-                data: [],
-                pointRadius: 6,
-                pointHoverRadius: 8,
-                showLine: false,
-                borderWidth: 0,
-                borderColor: color,
-                backgroundColor: color,
-                pointBackgroundColor: color,
-                pointBorderColor: color
-            };
-            chart.data.datasets.push(dataset);
-        }
-        return dataset;
-    }
 
     // ============================================================
     // HELPERS
@@ -840,20 +820,18 @@
     function initChart() {
         const ctx = document.getElementById('comparisonChart').getContext('2d');
         chart = new Chart(ctx, {
-            type: 'scatter',
+            type: 'line',
             data: {
                 datasets: [
                     {
                         label: "ṁG,G′",
-                        data: [],
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        showLine: false,
-                        borderWidth: 0,
-                        borderColor: '#f59e0b',
-                        backgroundColor: '#f59e0b',
-                        pointBackgroundColor: '#f59e0b',
-                        pointBorderColor: '#f59e0b'
+                        borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderWidth: 2,
+                        pointRadius: 5, pointBackgroundColor: '#f59e0b', pointBorderColor: '#f59e0b', data: [], tension: 0.3
+                    },
+                    {
+                        label: 'ṁG,EB',
+                        borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.05)', borderWidth: 2,
+                        pointRadius: 5, pointBackgroundColor: '#22d3ee', pointBorderColor: '#22d3ee', data: [], tension: 0.3
                     }
                 ]
             },
@@ -861,14 +839,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        labels: {
-                            color: '#e5e7eb',
-                            font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 },
-                            usePointStyle: true,
-                            padding: 15
-                        }
-                    }
+                    legend: { labels: { color: '#e5e7eb', font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 }, usePointStyle: true, padding: 15 } }
                 },
                 scales: {
                     x: {
@@ -889,28 +860,16 @@
 
     document.getElementById('addPointBtn').addEventListener('click', () => {
         calculate();
-        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || isNaN(currentCalc.m_G_Gprime) || !isFinite(currentCalc.m_G_Gprime)) return;
-
+        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || currentCalc.m_G_EB === null) return;
         chart.data.datasets[0].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_Gprime });
-
-        const ebTrialsForChart = currentEbTrials.length > 0
-            ? currentEbTrials.filter(trial => trial.m_G_EB !== null && !isNaN(trial.m_G_EB) && isFinite(trial.m_G_EB))
-            : [{ flowValue: currentCalc.m_W_lpm, m_G_EB: currentCalc.m_G_EB }];
-
-        ebTrialsForChart.forEach(trial => {
-            if (trial.flowValue === null || trial.flowValue === undefined || isNaN(trial.flowValue)) return;
-            if (trial.m_G_EB === null || isNaN(trial.m_G_EB) || !isFinite(trial.m_G_EB)) return;
-            const dataset = getOrCreateEbDataset(trial.flowValue);
-            dataset.data.push({ x: currentCalc.rpm, y: trial.m_G_EB });
-        });
-
+        chart.data.datasets[1].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_EB });
         chart.update();
     });
 
     document.getElementById('clearChartBtn').addEventListener('click', () => {
         if (chart) {
-            chart.data.datasets = [chart.data.datasets[0]];
             chart.data.datasets[0].data = [];
+            chart.data.datasets[1].data = [];
             chart.update();
         }
     });
@@ -1200,29 +1159,10 @@
         XLSX.writeFile(wb, 'input_records.xlsx');
     });
 
-
-    // ============================================================
-    // PREVENT ACCIDENTAL NUMBER INPUT CHANGES (WHEEL / ARROW KEYS)
-    // ============================================================
-    function attachNumberInputGuards() {
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('wheel', function(e) {
-                e.preventDefault();
-            }, { passive: false });
-
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                }
-            });
-        });
-    }
-
     // ============================================================
     // INIT
     // ============================================================
     window.addEventListener('load', () => {
-        attachNumberInputGuards();
         initChart();
         renderEbTrials();
         renderSavedTables();
