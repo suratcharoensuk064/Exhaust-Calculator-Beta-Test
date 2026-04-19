@@ -569,11 +569,30 @@
     // UI STATE
     // ============================================================
     const inputs = {
-        Hcv: document.getElementById('Hcv'), Ocv: document.getElementById('Ocv'), C: document.getElementById('C'), H: document.getElementById('H'), O: document.getElementById('O'), S: document.getElementById('S'), N: document.getElementById('N'), n: document.getElementById('n'),
-        Vdot_f: document.getElementById('Vdot_f'), rho_f: document.getElementById('rho_f'),
-        CO2: document.getElementById('CO2'), CO: document.getElementById('CO'), O2: document.getElementById('O2'), HC_ppm: document.getElementById('HC_ppm'), NOx_ppm: document.getElementById('NOx_ppm'),
-        P_kPa: document.getElementById('P_kPa'), M: document.getElementById('M'), T_actual_C: document.getElementById('T_actual_C'),
-        m_W: document.getElementById('m_W'), C_PG: document.getElementById('C_PG'), T_GI_C: document.getElementById('T_GI_C'), T_GO_C: document.getElementById('T_GO_C'), T_WI_C: document.getElementById('T_WI_C'), T_WO_C: document.getElementById('T_WO_C')
+        Hcv: document.getElementById('Hcv'),
+        Ocv: document.getElementById('Ocv'),
+        C: document.getElementById('C'),
+        H: document.getElementById('H'),
+        O: document.getElementById('O'),
+        S: document.getElementById('S'),
+        N: document.getElementById('N'),
+        n: document.getElementById('n'),
+        Vdot_f: document.getElementById('Vdot_f'),
+        rho_f: document.getElementById('rho_f'),
+        CO2: document.getElementById('CO2'),
+        CO: document.getElementById('CO'),
+        O2: document.getElementById('O2'),
+        HC_ppm: document.getElementById('HC_ppm'),
+        NOx_ppm: document.getElementById('NOx_ppm'),
+        P_kPa: document.getElementById('P_kPa'),
+        M: document.getElementById('M'),
+        T_actual_C: document.getElementById('T_actual_C'),
+        m_W: document.getElementById('m_W'),
+        C_PG: document.getElementById('C_PG'),
+        T_GI_C: document.getElementById('T_GI_C'),
+        T_GO_C: document.getElementById('T_GO_C'),
+        T_WI_C: document.getElementById('T_WI_C'),
+        T_WO_C: document.getElementById('T_WO_C')
     };
 
     const results = {
@@ -629,6 +648,23 @@
     }
 
     // ============================================================
+    // INPUT GUARDS
+    // ============================================================
+    function attachNumberInputGuards() {
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                }
+            });
+        });
+    }
+
+    // ============================================================
     // COLLAPSIBLE SECTIONS
     // ============================================================
     document.querySelectorAll('.group-header').forEach(header => {
@@ -655,11 +691,26 @@
         const HC_ppm = inputs.HC_ppm.value;
         document.getElementById('prev-HC').textContent = HC_ppm ? `= ${(parseFloat(HC_ppm) / 10000).toFixed(6)} % Vol` : '';
 
+        const CO_val = inputs.CO.value;
+        document.getElementById('prev-CO').textContent = CO_val ? `= ${parseFloat(CO_val).toFixed(4)} % Vol` : '';
+
+        const O2_val = inputs.O2.value;
+        document.getElementById('prev-O2').textContent = O2_val ? `= ${parseFloat(O2_val).toFixed(4)} % Vol` : '';
+
+        const CO2_val = inputs.CO2.value;
+        document.getElementById('prev-CO2').textContent = CO2_val ? `= ${parseFloat(CO2_val).toFixed(4)} % Vol` : '';
+
         const NOx_ppm = inputs.NOx_ppm.value;
         document.getElementById('prev-NOx').textContent = NOx_ppm ? `= ${(parseFloat(NOx_ppm) / 10000).toFixed(6)} % Vol (ref)` : '';
 
         const m_W_lpm = inputs.m_W.value;
         document.getElementById('prev-m_W').textContent = m_W_lpm ? `= ${(parseFloat(m_W_lpm) / 60).toFixed(6)} kg/s` : '';
+
+        const T_WI = inputs.T_WI_C.value;
+        document.getElementById('prev-T_WI').textContent = T_WI ? `= ${(parseFloat(T_WI) + 273.15).toFixed(2)} K` : '';
+
+        const T_WO = inputs.T_WO_C.value;
+        document.getElementById('prev-T_WO').textContent = T_WO ? `= ${(parseFloat(T_WO) + 273.15).toFixed(2)} K` : '';
 
         const T_GI = inputs.T_GI_C.value;
         document.getElementById('prev-T_GI').textContent = T_GI ? `= ${(parseFloat(T_GI) + 273.15).toFixed(2)} K` : '';
@@ -667,11 +718,8 @@
         const T_GO = inputs.T_GO_C.value;
         document.getElementById('prev-T_GO').textContent = T_GO ? `= ${(parseFloat(T_GO) + 273.15).toFixed(2)} K` : '';
 
-        const T_WI = inputs.T_WI_C.value;
-        document.getElementById('prev-T_WI').textContent = T_WI ? `= ${(parseFloat(T_WI) + 273.15).toFixed(2)} K` : '';
-
-        const T_WO = inputs.T_WO_C.value;
-        document.getElementById('prev-T_WO').textContent = T_WO ? `= ${(parseFloat(T_WO) + 273.15).toFixed(2)} K` : '';
+        const C_PG = inputs.C_PG.value;
+        document.getElementById('prev-C_PG').textContent = C_PG ? `= ${parseFloat(C_PG).toFixed(4)} kJ/(kg·K)` : '';
     }
 
     function getCurrentInputSnapshot() {
@@ -808,13 +856,25 @@
                 datasets: [
                     {
                         label: "ṁG,G′",
-                        borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.05)', borderWidth: 2,
-                        pointRadius: 5, pointBackgroundColor: '#f59e0b', pointBorderColor: '#f59e0b', data: [], tension: 0.3
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#f59e0b',
+                        pointBorderColor: '#f59e0b',
+                        data: [],
+                        tension: 0.3
                     },
                     {
                         label: 'ṁG,EB',
-                        borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.05)', borderWidth: 2,
-                        pointRadius: 5, pointBackgroundColor: '#22d3ee', pointBorderColor: '#22d3ee', data: [], tension: 0.3
+                        borderColor: '#22d3ee',
+                        backgroundColor: 'rgba(34, 211, 238, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#22d3ee',
+                        pointBorderColor: '#22d3ee',
+                        data: [],
+                        tension: 0.3
                     }
                 ]
             },
@@ -826,8 +886,15 @@
                 },
                 scales: {
                     x: {
-                        type: 'linear', min: 500, max: 4000,
-                        ticks: { stepSize: 500, color: '#9ca3af', font: { family: "'JetBrains Mono', monospace", size: 11 }, callback: value => value + ' RPM' },
+                        type: 'linear',
+                        min: 500,
+                        max: 4000,
+                        ticks: {
+                            stepSize: 500,
+                            color: '#9ca3af',
+                            font: { family: "'JetBrains Mono', monospace", size: 11 },
+                            callback: value => value + ' RPM'
+                        },
                         grid: { color: 'rgba(245, 158, 11, 0.05)' },
                         title: { display: true, text: 'Engine Speed (RPM)', color: '#e5e7eb', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
                     },
@@ -991,10 +1058,10 @@
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             columns.push({ main: `ṁwater ${i + 1}`, sub: 'L/min' });
-            columns.push({ main: `TGI ${i + 1}`, sub: '°C' });
-            columns.push({ main: `TGO ${i + 1}`, sub: '°C' });
             columns.push({ main: `TWI ${i + 1}`, sub: '°C' });
             columns.push({ main: `TWO ${i + 1}`, sub: '°C' });
+            columns.push({ main: `TGI ${i + 1}`, sub: '°C' });
+            columns.push({ main: `TGO ${i + 1}`, sub: '°C' });
         }
 
         const rows = savedSessions.map(session => {
@@ -1008,10 +1075,10 @@
             for (let i = 0; i < maxTrials; i += 1) {
                 const trial = session.ebTrials[i];
                 row.push(trial ? (trial.energyInputs.m_W_lpm ?? '—') : '—');
-                row.push(trial ? (trial.energyInputs.T_GI_C ?? '—') : '—');
-                row.push(trial ? (trial.energyInputs.T_GO_C ?? '—') : '—');
                 row.push(trial ? (trial.energyInputs.T_WI_C ?? '—') : '—');
                 row.push(trial ? (trial.energyInputs.T_WO_C ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_GI_C ?? '—') : '—');
+                row.push(trial ? (trial.energyInputs.T_GO_C ?? '—') : '—');
             }
             return row;
         });
@@ -1023,10 +1090,10 @@
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             exportHeaders.push(`mwater ${i + 1} (L/min)`);
-            exportHeaders.push(`TGI ${i + 1} (C)`);
-            exportHeaders.push(`TGO ${i + 1} (C)`);
             exportHeaders.push(`TWI ${i + 1} (C)`);
             exportHeaders.push(`TWO ${i + 1} (C)`);
+            exportHeaders.push(`TGI ${i + 1} (C)`);
+            exportHeaders.push(`TGO ${i + 1} (C)`);
         }
         return { columns, rows, exportHeaders };
     }
@@ -1146,6 +1213,7 @@
     // INIT
     // ============================================================
     window.addEventListener('load', () => {
+        attachNumberInputGuards();
         initChart();
         renderEbTrials();
         renderSavedTables();
