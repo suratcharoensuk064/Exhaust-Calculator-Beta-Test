@@ -375,11 +375,11 @@
             </div>
         </div>
 
-        <div class="collapsible-group mode-manual-only" id="section-fuel-flow">
+        <div class="collapsible-group mode-global" id="section-fuel-flow">
             <div class="group-header">Fuel Flow</div>
             <div class="group-content">
-                <div class="input-group"><label class="input-label">Volumetric Flow (V̇<sub>f</sub>) [ml/min]</label><input type="number" id="Vdot_f" step="0.1" placeholder="e.g. 100"><div class="conversion-preview" id="prev-Vdot_f"></div></div>
-                <div class="input-group"><label class="input-label">Fuel Density (ρ<sub>f</sub>) [kg/L]</label><input type="number" id="rho_f" step="0.01" placeholder="e.g. 0.74"><div class="conversion-preview" id="prev-rho_f"></div></div>
+                <div class="input-group manual-only-row" id="fuelflow-row-vdotf"><label class="input-label">Volumetric Flow (V̇<sub>f</sub>) [ml/min]</label><input type="number" id="Vdot_f" step="0.1" placeholder="e.g. 100"><div class="conversion-preview" id="prev-Vdot_f"></div></div>
+                <div class="input-group" id="fuelflow-row-rhof"><label class="input-label">Fuel Density (Fuel Density) [kg/L]</label><input type="number" id="rho_f" step="0.01" placeholder="e.g. 0.74"><div class="conversion-preview" id="prev-rho_f"></div></div>
             </div>
         </div>
 
@@ -417,7 +417,7 @@
     </div>
 
     <div class="main-content">
-        <div class="panel">
+        <div class="panel" id="calcResultsPanel">
             <div class="panel-title">Calculation Results</div>
             <div class="summary-badges">
                 <div class="badge">ṁfuel: 7 decimals</div>
@@ -437,7 +437,7 @@
             </div>
         </div>
 
-        <div class="subgrid">
+        <div class="subgrid" id="ebAndChartGrid">
             <div class="panel">
                 <div class="panel-title">EB Trials</div>
                 <div class="mini-buttons" style="margin-bottom:12px;">
@@ -472,14 +472,31 @@
 
         <div class="panel" id="batchInputPanel">
             <div class="panel-title">Batch Input</div>
+            <div class="summary-badges" style="margin-bottom:12px;">
+                <div class="badge">Choose calculation target first</div>
+                <div class="badge">Batch uses existing formulas only</div>
+            </div>
+            <div class="input-group" style="max-width:380px;margin-bottom:12px;">
+                <label class="input-label">Batch Calculation Type</label>
+                <select id="batchCalcType" style="width:100%;padding:10px 12px;background:#0d0f14;border:1px solid rgba(245, 158, 11, 0.3);border-radius:6px;color:#e5e7eb;font-family:'JetBrains Mono', monospace;font-size:13px;">
+                    <option value="full">Full calculation</option>
+                    <option value="eb_only">Energy Balance only</option>
+                    <option value="lambda_only">Lambda only</option>
+                    <option value="gprime_only">G′ method only</option>
+                </select>
+            </div>
             <div class="summary-badges">
                 <div class="badge">Paste tab- or space-separated rows</div>
                 <div class="badge">One row = one speed point</div>
                 <div class="badge">Uses the same formulas and save logic</div>
             </div>
             <div class="input-group" style="margin-bottom:12px;">
+                <label class="input-label">Required Manual Inputs</label>
+                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, P_kPa, M, T_actual_C, C_PG</div>
+            </div>
+            <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Column order</label>
-                <div class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
+                <div id="batchColumnOrder" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
                     Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
                 </div>
             </div>
@@ -715,6 +732,10 @@
 
         const manualOnlySections = document.querySelectorAll('.mode-manual-only');
         const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
+        const manualOnlyRows = document.querySelectorAll('.manual-only-row');
+
+        const calcResultsPanel = document.getElementById('calcResultsPanel');
+        const ebAndChartGrid = document.getElementById('ebAndChartGrid');
 
         if (mode === 'manual') {
             manualBtn.classList.add('active');
@@ -723,7 +744,10 @@
 
             manualOnlySections.forEach(el => el.classList.remove('is-hidden'));
             batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
+            manualOnlyRows.forEach(el => el.classList.remove('is-hidden'));
             if (batchPanel) batchPanel.classList.add('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.remove('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.remove('is-hidden');
         } else {
             manualBtn.classList.remove('active');
             batchBtn.classList.add('active');
@@ -731,7 +755,10 @@
 
             manualOnlySections.forEach(el => el.classList.add('is-hidden'));
             batchPartialRows.forEach(el => el.classList.add('is-hidden'));
+            manualOnlyRows.forEach(el => el.classList.add('is-hidden'));
             if (batchPanel) batchPanel.classList.remove('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.add('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.add('is-hidden');
         }
     }
 
@@ -1012,9 +1039,11 @@
     }
 
     function addSessionToChart(session) {
-        if (!chart || !session || session.rpm === null || session.baseResults.m_G_Gprime === null || !isFinite(session.baseResults.m_G_Gprime)) return;
+        if (!chart || !session || session.rpm === null) return;
 
-        chart.data.datasets[0].data.push({ x: session.rpm, y: session.baseResults.m_G_Gprime });
+        if (session.baseResults.m_G_Gprime !== null && isFinite(session.baseResults.m_G_Gprime)) {
+            chart.data.datasets[0].data.push({ x: session.rpm, y: session.baseResults.m_G_Gprime });
+        }
 
         session.ebTrials.forEach(trial => {
             if (trial.m_G_EB !== null && isFinite(trial.m_G_EB)) {
@@ -1051,6 +1080,69 @@
         }
     });
 
+    const BATCH_MODE_SPECS = {
+        full: {
+            label: 'Full calculation',
+            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C','C_PG'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6], twi1: vals[7], two1: vals[8], tgi1: vals[9], tgo1: vals[10], twi2: vals[11], two2: vals[12], tgi2: vals[13], tgo2: vals[14] })
+        },
+        eb_only: {
+            label: 'Energy Balance only',
+            columns: ['Speed','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
+            requiredGlobals: ['C_PG'],
+            parser: vals => ({ speed: vals[0], twi1: vals[1], two1: vals[2], tgi1: vals[3], tgo1: vals[4], twi2: vals[5], two2: vals[6], tgi2: vals[7], tgo2: vals[8] })
+        },
+        lambda_only: {
+            label: 'Lambda only',
+            columns: ['Speed','HC','CO','NOx','O2','CO2'],
+            requiredGlobals: ['Hcv','Ocv','n'],
+            parser: vals => ({ speed: vals[0], hc: vals[1], co: vals[2], nox: vals[3], o2: vals[4], co2: vals[5] })
+        },
+        gprime_only: {
+            label: 'G′ method only',
+            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6] })
+        }
+    };
+
+    function getBatchSpec() {
+        const key = document.getElementById('batchCalcType')?.value || 'full';
+        return { key, ...BATCH_MODE_SPECS[key] };
+    }
+
+    function updateBatchModeUI() {
+        const spec = getBatchSpec();
+        const order = document.getElementById('batchColumnOrder');
+        const note = document.getElementById('batchRequiredNote');
+        const flowGroups = [document.getElementById('batchFlow1')?.closest('.input-group'), document.getElementById('batchFlow2')?.closest('.input-group')];
+        if (order) order.textContent = spec.columns.join(' ');
+        if (note) note.textContent = `Required manual inputs: ${spec.requiredGlobals.join(', ')}`;
+        const needsFlow = spec.key === 'full' || spec.key === 'eb_only';
+        flowGroups.forEach(el => { if (el) el.classList.toggle('is-hidden', !needsFlow); });
+    }
+
+    function validateBatchGlobals(spec) {
+        const missing = spec.requiredGlobals.filter(key => parseNullable(inputs[key]?.value ?? '') === null);
+        return missing;
+    }
+
+    function clearRowSpecificInputs() {
+        document.getElementById('rpm').value = '';
+        inputs.Vdot_f.value = '';
+        inputs.HC_ppm.value = '';
+        inputs.CO.value = '';
+        inputs.NOx_ppm.value = '';
+        inputs.O2.value = '';
+        inputs.CO2.value = '';
+        inputs.m_W.value = '';
+        inputs.T_GI_C.value = '';
+        inputs.T_GO_C.value = '';
+        inputs.T_WI_C.value = '';
+        inputs.T_WO_C.value = '';
+    }
+
     // ============================================================
     // BATCH INPUT
     // ============================================================
@@ -1063,13 +1155,14 @@
     }
 
     function setBaseInputsFromBatchRow(row) {
-        document.getElementById('rpm').value = row.speed;
-        inputs.Vdot_f.value = row.vfuel;
-        inputs.HC_ppm.value = row.hc;
-        inputs.CO.value = row.co;
-        inputs.NOx_ppm.value = row.nox;
-        inputs.O2.value = row.o2;
-        inputs.CO2.value = row.co2;
+        clearRowSpecificInputs();
+        if (row.speed !== undefined) document.getElementById('rpm').value = row.speed;
+        if (row.vfuel !== undefined) inputs.Vdot_f.value = row.vfuel;
+        if (row.hc !== undefined) inputs.HC_ppm.value = row.hc;
+        if (row.co !== undefined) inputs.CO.value = row.co;
+        if (row.nox !== undefined) inputs.NOx_ppm.value = row.nox;
+        if (row.o2 !== undefined) inputs.O2.value = row.o2;
+        if (row.co2 !== undefined) inputs.CO2.value = row.co2;
     }
 
     function buildTrialFromBatch(flowValue, twi, two, tgi, tgo) {
@@ -1096,14 +1189,23 @@
     function parseBatch() {
         const raw = document.getElementById('batchInput').value.trim();
         const status = document.getElementById('batchStatus');
+        const spec = getBatchSpec();
+
         if (!raw) {
             status.textContent = 'No batch data pasted';
             return;
         }
 
-        const flow1 = parseNullable(document.getElementById('batchFlow1').value);
-        const flow2 = parseNullable(document.getElementById('batchFlow2').value);
-        if (flow1 === null || flow2 === null) {
+        const missingGlobals = validateBatchGlobals(spec);
+        if (missingGlobals.length > 0) {
+            alert(`Please enter required manual inputs first: ${missingGlobals.join(', ')}`);
+            return;
+        }
+
+        const needsFlow = spec.key === 'full' || spec.key === 'eb_only';
+        const flow1 = needsFlow ? parseNullable(document.getElementById('batchFlow1').value) : null;
+        const flow2 = needsFlow ? parseNullable(document.getElementById('batchFlow2').value) : null;
+        if (needsFlow && (flow1 === null || flow2 === null)) {
             alert('Please enter Flow-water 1 and Flow-water 2');
             return;
         }
@@ -1111,43 +1213,56 @@
         const lines = parseBatchLines(raw);
         let successCount = 0;
         let skipCount = 0;
+        const rowErrors = [];
 
-        lines.forEach(line => {
-            const cols = line.split(/\t|\s+/).filter(Boolean);
-            if (cols.length < 15) {
+        lines.forEach((line, idx) => {
+            const cols = line.split(/	|\s+/).filter(Boolean);
+            if (cols.length < spec.columns.length) {
                 skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: expected ${spec.columns.length} columns, got ${cols.length}`);
                 return;
             }
 
-            const values = cols.slice(0, 15).map(v => Number(v));
-            if (values.some(v => Number.isNaN(v))) {
+            const values = cols.slice(0, spec.columns.length).map(v => Number(v));
+            const badIndex = values.findIndex(v => Number.isNaN(v));
+            if (badIndex !== -1) {
                 skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: invalid number at ${spec.columns[badIndex]}`);
                 return;
             }
 
-            const [speed, vfuel, hc, co, nox, o2, co2, twi1, two1, tgi1, tgo1, twi2, two2, tgi2, tgo2] = values;
-            setBaseInputsFromBatchRow({ speed, vfuel, hc, co, nox, o2, co2 });
+            const row = spec.parser(values);
+            setBaseInputsFromBatchRow(row);
             calculate();
 
             currentEbTrials = [];
-            currentEbTrials.push(buildTrialFromBatch(flow1, twi1, two1, tgi1, tgo1));
-            currentEbTrials.push(buildTrialFromBatch(flow2, twi2, two2, tgi2, tgo2));
+            if (spec.key === 'full' || spec.key === 'eb_only') {
+                currentEbTrials.push(buildTrialFromBatch(flow1, row.twi1, row.two1, row.tgi1, row.tgo1));
+                currentEbTrials.push(buildTrialFromBatch(flow2, row.twi2, row.two2, row.tgi2, row.tgo2));
+            }
             renderEbTrials();
 
             const savedSession = saveCurrentSession();
-            addSessionToChart(savedSession);
-            successCount += 1;
+            if (savedSession) {
+                addSessionToChart(savedSession);
+                successCount += 1;
+            } else {
+                skipCount += 1;
+                rowErrors.push(`Row ${idx + 1}: could not save session`);
+            }
         });
 
         currentEbTrials = [];
         renderEbTrials();
-        status.textContent = `Batch complete: ${successCount} rows calculated, ${skipCount} rows skipped`;
+        const errorText = rowErrors.length > 0 ? ` | ${rowErrors.slice(0, 3).join(' ; ')}${rowErrors.length > 3 ? ' ...' : ''}` : '';
+        status.textContent = `Batch complete (${spec.label}): ${successCount} rows calculated, ${skipCount} rows skipped${errorText}`;
     }
 
     document.getElementById('parseBatchBtn').addEventListener('click', parseBatch);
     document.getElementById('clearBatchBtn').addEventListener('click', () => {
         document.getElementById('batchInput').value = '';
         document.getElementById('batchStatus').textContent = 'Ready for batch paste';
+        updateBatchModeUI();
     });
 
     // ============================================================
@@ -1448,6 +1563,8 @@
         attachNumberInputGuards();
         initModeToggle();
         initChart();
+        updateBatchModeUI();
+        document.getElementById('batchCalcType')?.addEventListener('change', updateBatchModeUI);
         renderEbTrials();
         renderSavedTables();
         calculate();
