@@ -868,7 +868,7 @@
         currentCalc = { ...snapshot, m_W, m_fuel, lambda, A0, G_prime, Vdot_G_STD, Vdot_G_actual, rho_exhaust, m_G_Gprime, m_G_EB };
 
         updateResult('m_fuel', m_fuel, 7);
-        updateResult('lambda', lambda, 4);
+        updateResult('lambda', lambda, 5);
         updateResult('A0', A0, 4);
         updateResult('G_prime', G_prime, 4);
         updateResult('Vdot_G_STD', Vdot_G_STD, 6);
@@ -1353,7 +1353,7 @@
             const row = [
                 formatValue(session.rpm, 0),
                 formatValue(session.baseResults.m_fuel, 7),
-                formatValue(session.baseResults.lambda, 4),
+                formatValue(session.baseResults.lambda, 5),
                 formatValue(session.baseResults.A0, 4),
                 formatValue(session.baseResults.G_prime, 4),
                 formatValue(session.baseResults.Vdot_G_STD, 6),
