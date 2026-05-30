@@ -409,7 +409,7 @@
     </div>
 
     <div class="main-content">
-        <div class="panel">
+        <div class="panel" id="calcResultsPanel">
             <div class="panel-title">Calculation Results</div>
             <div class="summary-badges">
                 <div class="badge">ṁfuel: 7 decimals</div>
@@ -429,7 +429,7 @@
             </div>
         </div>
 
-        <div class="subgrid">
+        <div class="subgrid" id="ebAndChartGrid">
             <div class="panel">
                 <div class="panel-title">EB Trials</div>
                 <div class="mini-buttons" style="margin-bottom:12px;">
@@ -721,6 +721,8 @@
         const batchBtn = document.getElementById('batchModeBtn');
         const modeNote = document.getElementById('modeNote');
         const batchPanel = document.getElementById('batchInputPanel');
+        const calcResultsPanel = document.getElementById('calcResultsPanel');
+        const ebAndChartGrid = document.getElementById('ebAndChartGrid');
 
         const manualOnlySections = document.querySelectorAll('.mode-manual-only');
         const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
@@ -735,6 +737,8 @@
             batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.remove('is-hidden'));
             if (batchPanel) batchPanel.classList.add('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.remove('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.remove('is-hidden');
         } else {
             manualBtn.classList.remove('active');
             batchBtn.classList.add('active');
@@ -744,6 +748,8 @@
             batchPartialRows.forEach(el => el.classList.add('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.add('is-hidden'));
             if (batchPanel) batchPanel.classList.remove('is-hidden');
+            if (calcResultsPanel) calcResultsPanel.classList.add('is-hidden');
+            if (ebAndChartGrid) ebAndChartGrid.classList.add('is-hidden');
         }
     }
 
