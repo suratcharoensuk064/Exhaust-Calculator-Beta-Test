@@ -17,20 +17,9 @@
             width: 100%;
             min-height: 100%;
             font-family: 'Barlow Condensed', sans-serif;
-            background: #0d0f14;
-            color: #e5e7eb;
+            background: #f0f4f8;
+            color: #1e293b;
             overflow: auto;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(0deg, transparent 24%, rgba(245, 158, 11, 0.05) 25%, rgba(245, 158, 11, 0.05) 26%, transparent 27%, transparent 74%, rgba(245, 158, 11, 0.05) 75%, rgba(245, 158, 11, 0.05) 76%, transparent 77%, transparent),
-                linear-gradient(90deg, transparent 24%, rgba(245, 158, 11, 0.05) 25%, rgba(245, 158, 11, 0.05) 26%, transparent 27%, transparent 74%, rgba(245, 158, 11, 0.05) 75%, rgba(245, 158, 11, 0.05) 76%, transparent 77%, transparent);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
         }
         .wrapper {
             position: relative;
@@ -43,25 +32,24 @@
         }
         .sidebar {
             width: 350px;
-            background: #161b22;
-            border: 1px solid rgba(245, 158, 11, 0.2);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 20px;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: #f59e0b #1a1f26;
+            scrollbar-color: #1e40af #e2e8f0;
         }
         .sidebar::-webkit-scrollbar { width: 8px; }
-        .sidebar::-webkit-scrollbar-track { background: #1a1f26; }
-        .sidebar::-webkit-scrollbar-thumb { background: #f59e0b; border-radius: 4px; }
+        .sidebar::-webkit-scrollbar-track { background: #e2e8f0; }
+        .sidebar::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 4px; }
         .sidebar-title {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
-            color: #f59e0b;
+            color: #1e40af;
             margin-bottom: 20px;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+            letter-spacing: 2px;
         }
 
         .mode-switch {
@@ -73,9 +61,9 @@
             flex: 1;
             padding: 10px 12px;
             border-radius: 6px;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            background: rgba(245, 158, 11, 0.08);
-            color: #f59e0b;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e40af;
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 700;
             font-size: 13px;
@@ -84,13 +72,13 @@
             text-transform: uppercase;
         }
         .mode-btn.active {
-            background: #f59e0b;
-            color: #0d0f14;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+            background: #1e40af;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
         }
         .mode-note {
             font-size: 11px;
-            color: #94a3b8;
+            color: #64748b;
             margin-bottom: 18px;
             font-family: 'JetBrains Mono', monospace;
         }
@@ -104,11 +92,10 @@
             min-width: 0;
         }
         .panel {
-            background: #161b22;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
         }
         .subgrid {
             display: grid;
@@ -116,14 +103,15 @@
             gap: 20px;
         }
         .panel-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
-            color: #f59e0b;
-            margin-bottom: 18px;
+            color: #1e40af;
+            margin-bottom: 16px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 1px solid rgba(245, 158, 11, 0.15);
-            padding-bottom: 10px;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #1e40af;
+            padding-bottom: 8px;
+            display: inline-block;
         }
         .summary-badges {
             display: flex;
@@ -132,18 +120,18 @@
             margin-bottom: 14px;
         }
         .badge {
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            background: rgba(245, 158, 11, 0.08);
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
             border-radius: 999px;
-            padding: 5px 12px;
+            padding: 6px 10px;
             font-size: 11px;
-            color: #cbd5e1;
+            color: #1e40af;
             font-family: 'JetBrains Mono', monospace;
         }
         .collapsible-group { margin-bottom: 20px; }
         .group-header {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
             padding: 12px 16px;
             border-radius: 6px;
             cursor: pointer;
@@ -151,13 +139,13 @@
             justify-content: space-between;
             align-items: center;
             font-weight: 600;
-            color: #f59e0b;
+            color: #1e40af;
             transition: all 0.3s ease;
             user-select: none;
         }
         .group-header:hover {
-            background: rgba(245, 158, 11, 0.15);
-            border-color: rgba(245, 158, 11, 0.5);
+            background: #dbeafe;
+            border-color: #93c5fd;
         }
         .group-header::after { content: '▼'; transition: transform 0.3s ease; font-size: 12px; }
         .group-header.collapsed::after { transform: rotate(-90deg); }
@@ -167,7 +155,7 @@
         .input-label {
             display: block;
             font-size: 12px;
-            color: #9ca3af;
+            color: #475569;
             margin-bottom: 4px;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 600;
@@ -177,29 +165,29 @@
         input[type="number"] {
             width: 100%;
             padding: 10px 12px;
-            background: #0d0f14;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
             border-radius: 6px;
-            color: #e5e7eb;
+            color: #1e293b;
             font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
             transition: all 0.3s ease;
         }
         input[type="number"]:focus {
             outline: none;
-            border-color: #f59e0b;
-            box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.1);
-            background: rgba(245, 158, 11, 0.03);
+            border-color: #1e40af;
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+            background: #ffffff;
         }
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
         .conversion-preview {
             font-size: 11px;
-            color: #6b7280;
+            color: #64748b;
             margin-top: 4px;
             font-family: 'JetBrains Mono', monospace;
-            border-left: 2px solid rgba(245, 158, 11, 0.2);
+            border-left: 2px solid #bfdbfe;
             padding-left: 8px;
         }
         .results-grid {
@@ -208,44 +196,42 @@
             gap: 12px;
         }
         .result-card {
-            background: #0d0f14;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            border-radius: 8px;
-            padding: 16px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 14px;
             text-align: center;
             transition: all 0.3s ease;
         }
         .result-card:hover {
-            border-color: rgba(245, 158, 11, 0.6);
-            box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
-            transform: translateY(-1px);
+            border-color: #93c5fd;
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.1);
         }
         .result-card.pulse { animation: glowPulse 0.6s ease-out; }
         @keyframes glowPulse {
-            0% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); border-color: rgba(245, 158, 11, 0.8); }
-            50% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.7); }
-            100% { box-shadow: 0 0 0 rgba(245, 158, 11, 0); border-color: rgba(245, 158, 11, 0.25); }
+            0% { box-shadow: 0 0 0 rgba(30, 64, 175, 0); border-color: #1e40af; }
+            50% { box-shadow: 0 0 16px rgba(30, 64, 175, 0.3); }
+            100% { box-shadow: 0 0 0 rgba(30, 64, 175, 0); border-color: #e2e8f0; }
         }
         .result-label {
-            font-size: 12px;
-            color: #9ca3af;
-            margin-bottom: 8px;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 6px;
             font-family: 'JetBrains Mono', monospace;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .result-value {
-            font-size: 22px;
-            color: #f59e0b;
+            font-size: 18px;
+            color: #1e40af;
             font-family: 'JetBrains Mono', monospace;
             font-weight: 600;
             word-break: break-all;
-            line-height: 1.2;
         }
         .result-unit, .result-equation {
-            font-size: 10px;
-            color: #6b7280;
-            margin-top: 5px;
+            font-size: 9px;
+            color: #94a3b8;
+            margin-top: 4px;
             font-family: 'JetBrains Mono', monospace;
         }
         .mini-buttons, .chart-buttons {
@@ -255,10 +241,10 @@
         }
         button {
             padding: 10px 16px;
-            background: #f59e0b;
+            background: #1e40af;
             border: none;
             border-radius: 6px;
-            color: #0d0f14;
+            color: #ffffff;
             font-family: 'Barlow Condensed', sans-serif;
             font-weight: 600;
             font-size: 13px;
@@ -267,75 +253,68 @@
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 0 12px rgba(245, 158, 11, 0.5); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30, 64, 175, 0.35); }
         button:active { transform: translateY(0); }
-        .danger-btn { background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.35); }
-        .secondary-btn { background: rgba(34, 211, 238, 0.12); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.35); }
+        .danger-btn { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; }
+        .secondary-btn { background: #e0f2fe; color: #0369a1; border: 1px solid #7dd3fc; }
         .trial-delete {
             padding: 5px 9px;
             font-size: 11px;
-            background: rgba(239, 68, 68, 0.12);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.35);
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
         }
         .table-wrap {
             width: 100%;
             overflow: auto;
-            border: 1px solid rgba(245, 158, 11, 0.15);
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
         }
         table {
             width: 100%;
             border-collapse: collapse;
             min-width: 900px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
+            font-size: 11px;
         }
         th {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f8fafc;
-            border-bottom: 2px solid rgba(245, 158, 11, 0.4);
-            padding: 10px 12px;
+            background: #eff6ff;
+            color: #1e293b;
+            border-bottom: 1px solid #bfdbfe;
+            padding: 8px 10px;
             text-align: center;
             vertical-align: bottom;
             white-space: nowrap;
         }
         th .th-main {
             display: block;
-            color: #fbbf24;
-            font-size: 13px;
-            font-weight: 700;
+            color: #1e293b;
+            font-size: 11px;
+            font-weight: 600;
             line-height: 1.2;
         }
         th .th-sub {
             display: block;
             margin-top: 3px;
-            color: #94a3b8;
-            font-size: 11px;
+            color: #64748b;
+            font-size: 9px;
             font-weight: 400;
             line-height: 1.15;
             text-transform: none;
         }
         td {
-            padding: 10px 12px;
+            padding: 8px 10px;
             text-align: center;
-            border-bottom: 1px solid rgba(245, 158, 11, 0.1);
-            color: #e5e7eb;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
             white-space: nowrap;
-            font-size: 13px;
         }
-        tbody tr:nth-child(odd) td { background: rgba(255,255,255,0.02); }
-        tbody tr:hover td { background: rgba(245, 158, 11, 0.05); transition: background 0.2s; }
+        tbody tr:nth-child(odd) td { background: #f8fafc; }
         .status-line {
-            color: #94a3b8;
-            font-size: 12px;
+            color: #64748b;
+            font-size: 11px;
             margin-top: 10px;
             font-family: 'JetBrains Mono', monospace;
-            padding: 6px 10px;
-            background: rgba(245, 158, 11, 0.04);
-            border-radius: 4px;
-            border-left: 2px solid rgba(245, 158, 11, 0.3);
         }
         .chart-container { position: relative; height: 260px; }
         @media (max-width: 1200px) {
@@ -430,7 +409,7 @@
     </div>
 
     <div class="main-content">
-        <div class="panel" id="calcResultsPanel">
+        <div class="panel">
             <div class="panel-title">Calculation Results</div>
             <div class="summary-badges">
                 <div class="badge">ṁfuel: 7 decimals</div>
@@ -450,7 +429,7 @@
             </div>
         </div>
 
-        <div class="subgrid" id="ebAndChartGrid">
+        <div class="subgrid">
             <div class="panel">
                 <div class="panel-title">EB Trials</div>
                 <div class="mini-buttons" style="margin-bottom:12px;">
@@ -491,7 +470,7 @@
             </div>
             <div class="input-group" style="max-width:380px;margin-bottom:12px;">
                 <label class="input-label">Batch Calculation Type</label>
-                <select id="batchCalcType" style="width:100%;padding:10px 12px;background:#0d0f14;border:1px solid rgba(245, 158, 11, 0.3);border-radius:6px;color:#e5e7eb;font-family:'JetBrains Mono', monospace;font-size:13px;">
+                <select id="batchCalcType" style="width:100%;padding:10px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;color:#1e293b;font-family:'JetBrains Mono', monospace;font-size:13px;">
                     <option value="full">Full calculation</option>
                     <option value="eb_only">Energy Balance only</option>
                     <option value="lambda_only">Lambda only</option>
@@ -505,11 +484,11 @@
             </div>
             <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Required Manual Inputs</label>
-                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, P_kPa, M, T_actual_C, C_PG</div>
+                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid #bfdbfe;line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, P_kPa, M, T_actual_C, C_PG</div>
             </div>
             <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Column order</label>
-                <div id="batchColumnOrder" class="conversion-preview" style="padding:10px;border-left:2px solid rgba(245,158,11,0.3);line-height:1.55;">
+                <div id="batchColumnOrder" class="conversion-preview" style="padding:10px;border-left:2px solid #bfdbfe;line-height:1.55;">
                     Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
                 </div>
             </div>
@@ -517,7 +496,7 @@
                 <div>
                     <div class="input-group">
                         <label class="input-label">Paste table rows</label>
-                        <textarea id="batchInput" placeholder="1580\t20\t11\t0.36\t693\t2.6\t8.2\t34.3\t45.3\t51.2\t37.8\t34.6\t40.2\t49.6\t35.4\n1578\t22\t15\t0.32\t636\t4.0\t7.1\t34.4\t44.1\t51.1\t38.0\t35.0\t40.1\t49.0\t35.9" style="width:100%;min-height:150px;resize:vertical;padding:12px;background:#0d0f14;border:1px solid rgba(245, 158, 11, 0.3);border-radius:6px;color:#e5e7eb;font-family:'JetBrains Mono', monospace;font-size:12px;"></textarea>
+                        <textarea id="batchInput" placeholder="" style="width:100%;min-height:150px;resize:vertical;padding:12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;color:#1e293b;font-family:'JetBrains Mono', monospace;font-size:12px;"></textarea>
                     </div>
                 </div>
                 <div>
@@ -747,9 +726,6 @@
         const batchPartialRows = document.querySelectorAll('.batch-hide-eb');
         const manualOnlyRows = document.querySelectorAll('.manual-only-row');
 
-        const calcResultsPanel = document.getElementById('calcResultsPanel');
-        const ebAndChartGrid = document.getElementById('ebAndChartGrid');
-
         if (mode === 'manual') {
             manualBtn.classList.add('active');
             batchBtn.classList.remove('active');
@@ -759,8 +735,6 @@
             batchPartialRows.forEach(el => el.classList.remove('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.remove('is-hidden'));
             if (batchPanel) batchPanel.classList.add('is-hidden');
-            if (calcResultsPanel) calcResultsPanel.classList.remove('is-hidden');
-            if (ebAndChartGrid) ebAndChartGrid.classList.remove('is-hidden');
         } else {
             manualBtn.classList.remove('active');
             batchBtn.classList.add('active');
@@ -770,8 +744,6 @@
             batchPartialRows.forEach(el => el.classList.add('is-hidden'));
             manualOnlyRows.forEach(el => el.classList.add('is-hidden'));
             if (batchPanel) batchPanel.classList.remove('is-hidden');
-            if (calcResultsPanel) calcResultsPanel.classList.add('is-hidden');
-            if (ebAndChartGrid) ebAndChartGrid.classList.add('is-hidden');
         }
     }
 
@@ -1020,7 +992,7 @@
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#e5e7eb',
+                            color: '#1e293b',
                             font: { family: "'JetBrains Mono', monospace", size: 12, weight: 600 },
                             usePointStyle: true,
                             padding: 15
@@ -1034,17 +1006,17 @@
                         max: 4000,
                         ticks: {
                             stepSize: 500,
-                            color: '#9ca3af',
+                            color: '#475569',
                             font: { family: "'JetBrains Mono', monospace", size: 11 },
                             callback: value => value + ' RPM'
                         },
-                        grid: { color: 'rgba(245, 158, 11, 0.05)' },
-                        title: { display: true, text: 'Engine Speed (RPM)', color: '#e5e7eb', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
+                        grid: { color: 'rgba(30, 64, 175, 0.07)' },
+                        title: { display: true, text: 'Engine Speed (RPM)', color: '#1e293b', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
                     },
                     y: {
-                        ticks: { color: '#9ca3af', font: { family: "'JetBrains Mono', monospace", size: 11 } },
-                        grid: { color: 'rgba(245, 158, 11, 0.1)' },
-                        title: { display: true, text: 'Mass Flow Rate (kg/s)', color: '#e5e7eb', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
+                        ticks: { color: '#475569', font: { family: "'JetBrains Mono', monospace", size: 11 } },
+                        grid: { color: 'rgba(30, 64, 175, 0.07)' },
+                        title: { display: true, text: 'Mass Flow Rate (kg/s)', color: '#1e293b', font: { family: "'Barlow Condensed', sans-serif", size: 13, weight: 600 } }
                     }
                 }
             }
