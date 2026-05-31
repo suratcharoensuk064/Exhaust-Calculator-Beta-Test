@@ -332,6 +332,34 @@
             .chart-buttons, .mini-buttons { flex-direction: column; }
             button { width: 100%; }
         }
+
+
+        /* ============================================================
+           TEXT VISIBILITY PATCH ONLY
+           - Darken existing gray text to black
+           - Increase saved table body values only
+           - No HTML structure or JavaScript logic changed
+        ============================================================ */
+        .mode-note,
+        .input-label,
+        .conversion-preview,
+        .result-label,
+        .result-unit,
+        .result-equation,
+        .status-line,
+        th .th-sub,
+        .panel .table-wrap td {
+            color: #000000;
+            font-weight: 700;
+        }
+
+        #savedResultsTable tbody td,
+        #savedInputsTable tbody td {
+            font-size: 13px;
+            font-weight: 700;
+            color: #000000;
+        }
+
     </style>
 </head>
 <body>
