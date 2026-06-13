@@ -403,6 +403,14 @@
             </div>
         </div>
 
+        <div class="collapsible-group mode-global" id="section-mass-balance">
+            <div class="group-header">Mass Balance Inputs</div>
+            <div class="group-content">
+                <div class="input-group manual-only-row" id="massbalance-row-vdotair"><label class="input-label">Air Flow (V̇<sub>air</sub>) [m³/hr]</label><input type="number" id="Vdot_air" step="0.01" placeholder="e.g. 11.31"><div class="conversion-preview" id="prev-Vdot_air"></div></div>
+                <div class="input-group" id="massbalance-row-rhoair"><label class="input-label">Air Density (ρ<sub>air</sub>) [kg/m³]</label><input type="number" id="rho_air" step="0.01" placeholder="e.g. 1.17"><div class="conversion-preview" id="prev-rho_air"></div></div>
+            </div>
+        </div>
+
         <div class="collapsible-group mode-manual-only" id="section-gas-analyzer">
             <div class="group-header">Exhaust Gas Analyzer</div>
             <div class="group-content">
@@ -454,6 +462,9 @@
                 <div class="result-card" id="card-rho_exhaust"><div class="result-label">ρ<sub>exhaust</sub></div><div class="result-value" id="val-rho_exhaust">—</div><div class="result-unit">kg/m³</div><div class="result-equation">(Eq. 2.30)</div></div>
                 <div class="result-card" id="card-m_G_Gprime"><div class="result-label">ṁ<sub>G,G′</sub></div><div class="result-value" id="val-m_G_Gprime">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.43)</div></div>
                 <div class="result-card" id="card-m_G_EB"><div class="result-label">ṁ<sub>G,EB</sub></div><div class="result-value" id="val-m_G_EB">—</div><div class="result-unit">kg/s</div><div class="result-equation">(Eq. 2.45)</div><div id="val-m_W_tag" style="margin-top:4px;font-size:9px;color:#22d3ee;font-family:'JetBrains Mono',monospace;"></div></div>
+                <div class="result-card" id="card-Vdot_air"><div class="result-label">V̇<sub>air</sub></div><div class="result-value" id="val-Vdot_air">—</div><div class="result-unit">m³/hr</div><div class="result-equation">Mass balance input</div></div>
+                <div class="result-card" id="card-m_air"><div class="result-label">ṁ<sub>air</sub></div><div class="result-value" id="val-m_air">—</div><div class="result-unit">kg/s</div><div class="result-equation">ρ<sub>air</sub>V̇<sub>air</sub></div></div>
+                <div class="result-card" id="card-m_G_MB"><div class="result-label">ṁ<sub>G,MB</sub></div><div class="result-value" id="val-m_G_MB">—</div><div class="result-unit">kg/s</div><div class="result-equation">ṁ<sub>fuel</sub> + ṁ<sub>air</sub></div></div>
             </div>
         </div>
 
@@ -503,6 +514,7 @@
                     <option value="eb_only">Energy Balance only</option>
                     <option value="lambda_only">Lambda only</option>
                     <option value="gprime_only">G′ method only</option>
+                    <option value="mass_balance_only">Mass Balance only</option>
                 </select>
             </div>
             <div class="summary-badges">
@@ -512,12 +524,12 @@
             </div>
             <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Required Manual Inputs</label>
-                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid #bfdbfe;line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, P_kPa, M, T_actual_C, C_PG</div>
+                <div id="batchRequiredNote" class="conversion-preview" style="padding:10px;border-left:2px solid #bfdbfe;line-height:1.55;">Hcv, Ocv, C, H, O, S, N, n, rho_f, rho_air, P_kPa, M, T_actual_C, C_PG</div>
             </div>
             <div class="input-group" style="margin-bottom:12px;">
                 <label class="input-label">Column order</label>
                 <div id="batchColumnOrder" class="conversion-preview" style="padding:10px;border-left:2px solid #bfdbfe;line-height:1.55;">
-                    Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
+                    Speed&nbsp;&nbsp;Vfuel&nbsp;&nbsp;Vair&nbsp;&nbsp;HC&nbsp;&nbsp;CO&nbsp;&nbsp;NOx&nbsp;&nbsp;O2&nbsp;&nbsp;CO2&nbsp;&nbsp;TWI_1&nbsp;&nbsp;TWO_1&nbsp;&nbsp;TGI_1&nbsp;&nbsp;TGO_1&nbsp;&nbsp;TWI_2&nbsp;&nbsp;TWO_2&nbsp;&nbsp;TGI_2&nbsp;&nbsp;TGO_2
                 </div>
             </div>
             <div class="subgrid" style="grid-template-columns: minmax(340px, 1fr) 260px; align-items:start;">
@@ -662,6 +674,20 @@
         return rho_exhaust * Vdot_G_actual;
     }
 
+    // Mass Balance — Air mass flow rate
+    function calcMAir(Vdot_air_m3_hr, rho_air_kg_m3) {
+        if (!Vdot_air_m3_hr && Vdot_air_m3_hr !== 0) return null;
+        if (!rho_air_kg_m3 && rho_air_kg_m3 !== 0) return null;
+        return (Vdot_air_m3_hr / 3600) * rho_air_kg_m3;
+    }
+
+    // Mass Balance — Exhaust gas mass flow rate
+    function calcMGMB(m_fuel, m_air) {
+        if (!m_fuel && m_fuel !== 0) return null;
+        if (!m_air && m_air !== 0) return null;
+        return m_fuel + m_air;
+    }
+
     // Eq. 2.45 — Energy Balance Method
     function calcMdotEB(m_W, C_PG, T_GI_C, T_GO_C, T_WI_C, T_WO_C) {
         const C_PW = 4.186; // kJ/(kg·K), hardcoded constant
@@ -680,6 +706,7 @@
     const inputs = {
         Hcv: document.getElementById('Hcv'), Ocv: document.getElementById('Ocv'), C: document.getElementById('C'), H: document.getElementById('H'), O: document.getElementById('O'), S: document.getElementById('S'), N: document.getElementById('N'), n: document.getElementById('n'),
         Vdot_f: document.getElementById('Vdot_f'), rho_f: document.getElementById('rho_f'),
+        Vdot_air: document.getElementById('Vdot_air'), rho_air: document.getElementById('rho_air'),
         CO2: document.getElementById('CO2'), CO: document.getElementById('CO'), O2: document.getElementById('O2'), HC_ppm: document.getElementById('HC_ppm'), NOx_ppm: document.getElementById('NOx_ppm'),
         P_kPa: document.getElementById('P_kPa'), M: document.getElementById('M'), T_actual_C: document.getElementById('T_actual_C'),
         m_W: document.getElementById('m_W'), C_PG: document.getElementById('C_PG'), T_GI_C: document.getElementById('T_GI_C'), T_GO_C: document.getElementById('T_GO_C'), T_WI_C: document.getElementById('T_WI_C'), T_WO_C: document.getElementById('T_WO_C')
@@ -694,7 +721,10 @@
         Vdot_G_actual: document.getElementById('val-Vdot_G_actual'),
         rho_exhaust: document.getElementById('val-rho_exhaust'),
         m_G_Gprime: document.getElementById('val-m_G_Gprime'),
-        m_G_EB: document.getElementById('val-m_G_EB')
+        m_G_EB: document.getElementById('val-m_G_EB'),
+        Vdot_air: document.getElementById('val-Vdot_air'),
+        m_air: document.getElementById('val-m_air'),
+        m_G_MB: document.getElementById('val-m_G_MB')
     };
 
     const resultCards = {
@@ -706,7 +736,10 @@
         Vdot_G_actual: document.getElementById('card-Vdot_G_actual'),
         rho_exhaust: document.getElementById('card-rho_exhaust'),
         m_G_Gprime: document.getElementById('card-m_G_Gprime'),
-        m_G_EB: document.getElementById('card-m_G_EB')
+        m_G_EB: document.getElementById('card-m_G_EB'),
+        Vdot_air: document.getElementById('card-Vdot_air'),
+        m_air: document.getElementById('card-m_air'),
+        m_G_MB: document.getElementById('card-m_G_MB')
     };
 
     let chart = null;
@@ -826,6 +859,12 @@
         const vdot_f = inputs.Vdot_f.value;
         document.getElementById('prev-Vdot_f').textContent = vdot_f ? `= ${((vdot_f * 60) / 1000).toFixed(4)} L/h` : '';
 
+        const vdot_air = inputs.Vdot_air.value;
+        document.getElementById('prev-Vdot_air').textContent = vdot_air ? `= ${(parseFloat(vdot_air) / 3600).toFixed(6)} m³/s` : '';
+
+        const rho_air = inputs.rho_air.value;
+        document.getElementById('prev-rho_air').textContent = rho_air ? `used for ṁair calculation` : '';
+
         const T_actual = inputs.T_actual_C.value;
         document.getElementById('prev-T').textContent = T_actual ? `= ${(parseFloat(T_actual) + 273.15).toFixed(2)} K` : '';
 
@@ -859,6 +898,7 @@
             rpm: parseNullable(document.getElementById('rpm').value),
             Hcv: parseNullable(inputs.Hcv.value), Ocv: parseNullable(inputs.Ocv.value), C: parseNullable(inputs.C.value), H: parseNullable(inputs.H.value), O: parseNullable(inputs.O.value), S: parseNullable(inputs.S.value), N: parseNullable(inputs.N.value), n: parseNullable(inputs.n.value),
             Vdot_f: parseNullable(inputs.Vdot_f.value), rho_f: parseNullable(inputs.rho_f.value),
+            Vdot_air: parseNullable(inputs.Vdot_air.value), rho_air: parseNullable(inputs.rho_air.value),
             CO2: parseNullable(inputs.CO2.value), CO: parseNullable(inputs.CO.value), O2: parseNullable(inputs.O2.value), HC_ppm: parseNullable(inputs.HC_ppm.value), NOx_ppm: parseNullable(inputs.NOx_ppm.value),
             P_kPa: parseNullable(inputs.P_kPa.value), M: parseNullable(inputs.M.value), T_actual_C: parseNullable(inputs.T_actual_C.value),
             m_W_lpm: parseNullable(inputs.m_W.value), C_PG: parseNullable(inputs.C_PG.value), T_GI_C: parseNullable(inputs.T_GI_C.value), T_GO_C: parseNullable(inputs.T_GO_C.value), T_WI_C: parseNullable(inputs.T_WI_C.value), T_WO_C: parseNullable(inputs.T_WO_C.value)
@@ -882,9 +922,11 @@
         const Vdot_G_actual = calcVdotGActual(Vdot_G_STD, snapshot.T_actual_C);
         const rho_exhaust = calcRhoExhaust(snapshot.P_kPa, snapshot.M, snapshot.T_actual_C);
         const m_G_Gprime = calcMGPrime(rho_exhaust, Vdot_G_actual);
+        const m_air = calcMAir(snapshot.Vdot_air, snapshot.rho_air);
+        const m_G_MB = calcMGMB(m_fuel, m_air);
         const m_G_EB = calcMdotEB(m_W, snapshot.C_PG, snapshot.T_GI_C, snapshot.T_GO_C, snapshot.T_WI_C, snapshot.T_WO_C);
 
-        currentCalc = { ...snapshot, m_W, m_fuel, lambda, A0, G_prime, Vdot_G_STD, Vdot_G_actual, rho_exhaust, m_G_Gprime, m_G_EB };
+        currentCalc = { ...snapshot, m_W, m_fuel, lambda, A0, G_prime, Vdot_G_STD, Vdot_G_actual, rho_exhaust, m_G_Gprime, m_air, m_G_MB, m_G_EB };
 
         updateResult('m_fuel', m_fuel, 7);
         updateResult('lambda', lambda, 4);
@@ -895,6 +937,9 @@
         updateResult('rho_exhaust', rho_exhaust, 4);
         updateResult('m_G_Gprime', m_G_Gprime, 6);
         updateResult('m_G_EB', m_G_EB, 6);
+        updateResult('Vdot_air', snapshot.Vdot_air, 6);
+        updateResult('m_air', m_air, 6);
+        updateResult('m_G_MB', m_G_MB, 6);
 
         const m_W_tag = document.getElementById('val-m_W_tag');
         m_W_tag.textContent = snapshot.m_W_lpm !== null ? `@ ${snapshot.m_W_lpm.toFixed(2)} L/min` : '';
@@ -984,7 +1029,7 @@
         const flowKey = Number(flowValue).toFixed(2);
         let ds = chart.data.datasets.find(d => d.flowKey === flowKey);
         if (!ds) {
-            const color = flowColorPalette[(chart.data.datasets.length - 1) % flowColorPalette.length];
+            const color = flowColorPalette[Math.max(0, chart.data.datasets.length - 2) % flowColorPalette.length];
             ds = {
                 type: 'scatter',
                 label: `ṁG,EB @ ${flowKey} L/min`,
@@ -1013,6 +1058,18 @@
                         flowKey: 'GPRIME',
                         borderColor: '#f59e0b',
                         backgroundColor: '#f59e0b',
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        showLine: false,
+                        data: []
+                    },
+                    {
+                        type: 'scatter',
+                        label: "ṁG,MB",
+                        flowKey: 'MASSBALANCE',
+                        borderColor: '#0f766e',
+                        backgroundColor: '#0f766e',
+                        pointStyle: 'rect',
                         pointRadius: 6,
                         pointHoverRadius: 8,
                         showLine: false,
@@ -1063,6 +1120,9 @@
         if (session.baseResults.m_G_Gprime !== null && isFinite(session.baseResults.m_G_Gprime)) {
             chart.data.datasets[0].data.push({ x: session.rpm, y: session.baseResults.m_G_Gprime });
         }
+        if (chart.data.datasets[1] && session.baseResults.m_G_MB !== null && isFinite(session.baseResults.m_G_MB)) {
+            chart.data.datasets[1].data.push({ x: session.rpm, y: session.baseResults.m_G_MB });
+        }
 
         session.ebTrials.forEach(trial => {
             if (trial.m_G_EB !== null && isFinite(trial.m_G_EB)) {
@@ -1075,9 +1135,14 @@
 
     function addCurrentPointToChart() {
         calculate();
-        if (!currentCalc || currentCalc.rpm === null || currentCalc.m_G_Gprime === null || !isFinite(currentCalc.m_G_Gprime)) return;
+        if (!currentCalc || currentCalc.rpm === null) return;
 
-        chart.data.datasets[0].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_Gprime });
+        if (currentCalc.m_G_Gprime !== null && isFinite(currentCalc.m_G_Gprime)) {
+            chart.data.datasets[0].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_Gprime });
+        }
+        if (chart.data.datasets[1] && currentCalc.m_G_MB !== null && isFinite(currentCalc.m_G_MB)) {
+            chart.data.datasets[1].data.push({ x: currentCalc.rpm, y: currentCalc.m_G_MB });
+        }
 
         const trials = getTrialsToSave();
         trials.forEach(trial => {
@@ -1093,8 +1158,8 @@
 
     document.getElementById('clearChartBtn').addEventListener('click', () => {
         if (chart) {
-            chart.data.datasets = [chart.data.datasets[0]];
-            chart.data.datasets[0].data = [];
+            chart.data.datasets = chart.data.datasets.slice(0, 2);
+            chart.data.datasets.forEach(ds => ds.data = []);
             chart.update();
         }
     });
@@ -1102,9 +1167,9 @@
     const BATCH_MODE_SPECS = {
         full: {
             label: 'Full calculation',
-            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
-            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C','C_PG'],
-            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6], twi1: vals[7], two1: vals[8], tgi1: vals[9], tgo1: vals[10], twi2: vals[11], two2: vals[12], tgi2: vals[13], tgo2: vals[14] })
+            columns: ['Speed','Vfuel','Vair','HC','CO','NOx','O2','CO2','TWI_1','TWO_1','TGI_1','TGO_1','TWI_2','TWO_2','TGI_2','TGO_2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','rho_air','P_kPa','M','T_actual_C','C_PG'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], vair: vals[2], hc: vals[3], co: vals[4], nox: vals[5], o2: vals[6], co2: vals[7], twi1: vals[8], two1: vals[9], tgi1: vals[10], tgo1: vals[11], twi2: vals[12], two2: vals[13], tgi2: vals[14], tgo2: vals[15] })
         },
         eb_only: {
             label: 'Energy Balance only',
@@ -1120,9 +1185,15 @@
         },
         gprime_only: {
             label: 'G′ method only',
-            columns: ['Speed','Vfuel','HC','CO','NOx','O2','CO2'],
-            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','P_kPa','M','T_actual_C'],
-            parser: vals => ({ speed: vals[0], vfuel: vals[1], hc: vals[2], co: vals[3], nox: vals[4], o2: vals[5], co2: vals[6] })
+            columns: ['Speed','Vfuel','Vair','HC','CO','NOx','O2','CO2'],
+            requiredGlobals: ['Hcv','Ocv','C','H','O','S','N','n','rho_f','rho_air','P_kPa','M','T_actual_C'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], vair: vals[2], hc: vals[3], co: vals[4], nox: vals[5], o2: vals[6], co2: vals[7] })
+        },
+        mass_balance_only: {
+            label: 'Mass Balance only',
+            columns: ['Speed','Vfuel','Vair'],
+            requiredGlobals: ['rho_f','rho_air'],
+            parser: vals => ({ speed: vals[0], vfuel: vals[1], vair: vals[2] })
         }
     };
 
@@ -1150,6 +1221,7 @@
     function clearRowSpecificInputs() {
         document.getElementById('rpm').value = '';
         inputs.Vdot_f.value = '';
+        inputs.Vdot_air.value = '';
         inputs.HC_ppm.value = '';
         inputs.CO.value = '';
         inputs.NOx_ppm.value = '';
@@ -1177,6 +1249,7 @@
         clearRowSpecificInputs();
         if (row.speed !== undefined) document.getElementById('rpm').value = row.speed;
         if (row.vfuel !== undefined) inputs.Vdot_f.value = row.vfuel;
+        if (row.vair !== undefined) inputs.Vdot_air.value = row.vair;
         if (row.hc !== undefined) inputs.HC_ppm.value = row.hc;
         if (row.co !== undefined) inputs.CO.value = row.co;
         if (row.nox !== undefined) inputs.NOx_ppm.value = row.nox;
@@ -1323,12 +1396,14 @@
             baseInputs: {
                 Hcv: currentCalc.Hcv, Ocv: currentCalc.Ocv, C: currentCalc.C, H: currentCalc.H, O: currentCalc.O, S: currentCalc.S, N: currentCalc.N, n: currentCalc.n,
                 Vdot_f: currentCalc.Vdot_f, rho_f: currentCalc.rho_f,
+                Vdot_air: currentCalc.Vdot_air, rho_air: currentCalc.rho_air,
                 CO2: currentCalc.CO2, CO: currentCalc.CO, O2: currentCalc.O2, HC_ppm: currentCalc.HC_ppm, NOx_ppm: currentCalc.NOx_ppm,
                 P_kPa: currentCalc.P_kPa, M: currentCalc.M, T_actual_C: currentCalc.T_actual_C
             },
             baseResults: {
                 m_fuel: currentCalc.m_fuel, lambda: currentCalc.lambda, A0: currentCalc.A0, G_prime: currentCalc.G_prime,
-                Vdot_G_STD: currentCalc.Vdot_G_STD, Vdot_G_actual: currentCalc.Vdot_G_actual, rho_exhaust: currentCalc.rho_exhaust, m_G_Gprime: currentCalc.m_G_Gprime
+                Vdot_G_STD: currentCalc.Vdot_G_STD, Vdot_G_actual: currentCalc.Vdot_G_actual, rho_exhaust: currentCalc.rho_exhaust, m_G_Gprime: currentCalc.m_G_Gprime,
+                m_air: currentCalc.m_air, m_G_MB: currentCalc.m_G_MB
             },
             ebTrials: trials.map((trial, index) => ({ ...trial, trialNo: index + 1 }))
         };
@@ -1361,7 +1436,9 @@
             { main: 'V̇G,STD', sub: 'm³/s' },
             { main: 'V̇G,actual', sub: 'm³/s' },
             { main: 'Density', sub: 'kg/m³' },
-            { main: 'ṁG,G′', sub: 'kg/s' }
+            { main: 'ṁG,G′', sub: 'kg/s' },
+            { main: 'ṁair', sub: 'kg/s' },
+            { main: 'ṁG,MB', sub: 'kg/s' }
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             columns.push({ main: `Flow-water ${i + 1}`, sub: 'L/min' });
@@ -1378,7 +1455,9 @@
                 formatValue(session.baseResults.Vdot_G_STD, 6),
                 formatValue(session.baseResults.Vdot_G_actual, 6),
                 formatValue(session.baseResults.rho_exhaust, 4),
-                formatValue(session.baseResults.m_G_Gprime, 6)
+                formatValue(session.baseResults.m_G_Gprime, 6),
+                formatValue(session.baseResults.m_air, 6),
+                formatValue(session.baseResults.m_G_MB, 6)
             ];
             for (let i = 0; i < maxTrials; i += 1) {
                 const trial = session.ebTrials[i];
@@ -1390,7 +1469,7 @@
 
         const exportHeaders = [
             'Speed (rpm)', 'mfuel (kg/s)', 'Lambda (-)', 'A0 (m3N/kgfuel)', 'G-prime (m3N/kgfuel)',
-            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'Density (kg/m3)', 'mG-Gprime (kg/s)'
+            'VG-STD (m3/s)', 'VG-actual (m3/s)', 'Density (kg/m3)', 'mG-Gprime (kg/s)', 'mair (kg/s)', 'mG-MB (kg/s)'
         ];
         for (let i = 0; i < maxTrials; i += 1) {
             exportHeaders.push(`Flow-water ${i + 1} (L/min)`);
@@ -1413,6 +1492,8 @@
             { main: 'HC ref. no.', sub: 'n' },
             { main: 'V̇fuel', sub: 'ml/min' },
             { main: 'ρfuel', sub: 'kg/L' },
+            { main: 'V̇air', sub: 'm³/hr' },
+            { main: 'ρair', sub: 'kg/m³' },
             { main: 'CO₂', sub: '%vol' },
             { main: 'CO', sub: '%vol' },
             { main: 'O₂', sub: '%vol' },
@@ -1435,7 +1516,7 @@
             const row = [
                 formatValue(session.rpm, 0),
                 b.Hcv ?? '—', b.Ocv ?? '—', b.C ?? '—', b.H ?? '—', b.O ?? '—', b.S ?? '—', b.N ?? '—', b.n ?? '—',
-                b.Vdot_f ?? '—', b.rho_f ?? '—', b.CO2 ?? '—', b.CO ?? '—', b.O2 ?? '—', b.HC_ppm ?? '—', b.NOx_ppm ?? '—',
+                b.Vdot_f ?? '—', b.rho_f ?? '—', b.Vdot_air ?? '—', b.rho_air ?? '—', b.CO2 ?? '—', b.CO ?? '—', b.O2 ?? '—', b.HC_ppm ?? '—', b.NOx_ppm ?? '—',
                 b.P_kPa ?? '—', b.M ?? '—', b.T_actual_C ?? '—'
             ];
             for (let i = 0; i < maxTrials; i += 1) {
@@ -1451,7 +1532,7 @@
 
         const exportHeaders = [
             'Speed (rpm)', 'H/C ratio (Hcv)', 'O/C ratio (Ocv)', 'C (-)', 'H (-)', 'O (-)', 'S (-)', 'N (-)',
-            'HC ref. no. (n)', 'Vfuel (ml/min)', 'Fuel Density (kg/L)', 'CO2 (%vol)', 'CO (%vol)', 'O2 (%vol)',
+            'HC ref. no. (n)', 'Vfuel (ml/min)', 'Fuel Density (kg/L)', 'Vair (m3/hr)', 'Air Density (kg/m3)', 'CO2 (%vol)', 'CO (%vol)', 'O2 (%vol)',
             'HC (ppm)', 'NOx (ppm)', 'P (kPa)', 'M (kg/mol)', 'Texhaust (C)'
         ];
         for (let i = 0; i < maxTrials; i += 1) {
